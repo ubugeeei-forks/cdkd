@@ -1,3 +1,10 @@
+# [0.34.0](https://github.com/go-to-k/cdkd/compare/v0.33.0...v0.34.0) (2026-05-05)
+
+
+### Features
+
+* **cli:** add --role-arn (env: CDKD_ROLE_ARN) for assuming an IAM role ([#129](https://github.com/go-to-k/cdkd/issues/129)) ([371e351](https://github.com/go-to-k/cdkd/commit/371e351219d80b2e44ecf5535e1c49823db8f095))
+
 # [0.33.0](https://github.com/go-to-k/cdkd/compare/v0.32.0...v0.33.0) (2026-05-04)
 
 # [0.32.0](https://github.com/go-to-k/cdkd/compare/v0.31.2...v0.32.0) (2026-05-04)
