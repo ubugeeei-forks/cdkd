@@ -1,3 +1,10 @@
+# [0.36.0](https://github.com/go-to-k/cdkd/compare/v0.35.0...v0.36.0) (2026-05-05)
+
+
+### Features
+
+* **cli:** publish-assets — synth + build + publish (no deploy); drop --path ([#131](https://github.com/go-to-k/cdkd/issues/131)) ([a856ac9](https://github.com/go-to-k/cdkd/commit/a856ac95b4bb3d78adcde1355e0e7cafbab8ef8a))
+
 # [0.35.0](https://github.com/go-to-k/cdkd/compare/v0.34.0...v0.35.0) (2026-05-05)
 
 
