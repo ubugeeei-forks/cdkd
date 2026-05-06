@@ -1,3 +1,10 @@
+# [0.45.0](https://github.com/go-to-k/cdkd/compare/v0.44.0...v0.45.0) (2026-05-06)
+
+
+### Features
+
+* **drift:** --revert provider.update audit + ResourceUpdateNotSupportedError ([#141](https://github.com/go-to-k/cdkd/issues/141)) ([975bd7b](https://github.com/go-to-k/cdkd/commit/975bd7bbc3a0e3cf93170422cd0cbc5b678fa49c))
+
 # [0.44.0](https://github.com/go-to-k/cdkd/compare/v0.43.0...v0.44.0) (2026-05-06)
 
 
