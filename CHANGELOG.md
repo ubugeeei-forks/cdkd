@@ -1,3 +1,10 @@
+## [0.50.8](https://github.com/go-to-k/cdkd/compare/v0.50.7...v0.50.8) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** round-trip audit for Lambda providers (PR 1/5) ([#163](https://github.com/go-to-k/cdkd/issues/163)) ([08e5e7d](https://github.com/go-to-k/cdkd/commit/08e5e7d0c43ecf12a8a034dfd088387b47968502))
+
 ## [0.50.7](https://github.com/go-to-k/cdkd/compare/v0.50.6...v0.50.7) (2026-05-07)
 
 
