@@ -1,3 +1,10 @@
+# [0.51.0](https://github.com/go-to-k/cdkd/compare/v0.50.13...v0.51.0) (2026-05-07)
+
+
+### Features
+
+* **deploy:** auto-refresh observed-properties on v2 state load ([#170](https://github.com/go-to-k/cdkd/issues/170)) ([51d2ef2](https://github.com/go-to-k/cdkd/commit/51d2ef26cd5b47f3375b429369d845d37772c930))
+
 ## [0.50.13](https://github.com/go-to-k/cdkd/compare/v0.50.12...v0.50.13) (2026-05-07)
 
 
