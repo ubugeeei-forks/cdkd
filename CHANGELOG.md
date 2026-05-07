@@ -1,3 +1,10 @@
+## [0.50.2](https://github.com/go-to-k/cdkd/compare/v0.50.1...v0.50.2) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** always emit user-controllable top-level keys in CloudWatch Alarm + CodeBuild readCurrentState (Phase 2a) ([#153](https://github.com/go-to-k/cdkd/issues/153)) ([e741b66](https://github.com/go-to-k/cdkd/commit/e741b66da177c7f11585d176632e77f449cc6050))
+
 ## [0.50.1](https://github.com/go-to-k/cdkd/compare/v0.50.0...v0.50.1) (2026-05-07)
 
 
