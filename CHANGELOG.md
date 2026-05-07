@@ -1,3 +1,10 @@
+## [0.50.13](https://github.com/go-to-k/cdkd/compare/v0.50.12...v0.50.13) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** S3 Bucket Tags always-emit + audit closure for missed providers (PR 6) ([#168](https://github.com/go-to-k/cdkd/issues/168)) ([9eb5a4b](https://github.com/go-to-k/cdkd/commit/9eb5a4ba0b01f2f4795ae2e555116768d8432c42))
+
 ## [0.50.12](https://github.com/go-to-k/cdkd/compare/v0.50.11...v0.50.12) (2026-05-07)
 
 
