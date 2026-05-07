@@ -1,3 +1,10 @@
+# [0.50.0](https://github.com/go-to-k/cdkd/compare/v0.49.0...v0.50.0) (2026-05-07)
+
+
+### Features
+
+* **drift:** union-walk inside map-shaped properties on the observed-baseline path ([#147](https://github.com/go-to-k/cdkd/issues/147)) ([aaec509](https://github.com/go-to-k/cdkd/commit/aaec5093140aa7b31160dd2b5e2b980be24c5b14))
+
 # [0.49.0](https://github.com/go-to-k/cdkd/compare/v0.48.0...v0.49.0) (2026-05-07)
 
 
