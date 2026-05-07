@@ -1,3 +1,10 @@
+## [0.50.4](https://github.com/go-to-k/cdkd/compare/v0.50.3...v0.50.4) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** always emit user-controllable top-level keys in Cognito UserPool readCurrentState (Phase 2c) ([#155](https://github.com/go-to-k/cdkd/issues/155)) ([6d55445](https://github.com/go-to-k/cdkd/commit/6d55445ea4692668f1cad1bf08404286fe7b1e1c))
+
 ## [0.50.3](https://github.com/go-to-k/cdkd/compare/v0.50.2...v0.50.3) (2026-05-07)
 
 
