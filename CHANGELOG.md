@@ -1,3 +1,10 @@
+## [0.50.7](https://github.com/go-to-k/cdkd/compare/v0.50.6...v0.50.7) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** --revert no longer rejects on placeholder values + IAM Role empty Description clear ([#161](https://github.com/go-to-k/cdkd/issues/161)) ([b1bbe74](https://github.com/go-to-k/cdkd/commit/b1bbe743b27c774dfb087bd59528f5b977d677dc))
+
 ## [0.50.6](https://github.com/go-to-k/cdkd/compare/v0.50.5...v0.50.6) (2026-05-07)
 
 
