@@ -27,7 +27,11 @@ import type {
   ResourceImportResult,
   TemplateResource,
 } from '../../types/resource.js';
-import type { ResourceState, StackState } from '../../types/state.js';
+import {
+  STATE_SCHEMA_VERSION_CURRENT,
+  type ResourceState,
+  type StackState,
+} from '../../types/state.js';
 
 interface ImportOptions {
   app?: string;
@@ -451,6 +455,15 @@ async function importCommand(stackArg: string | undefined, options: ImportOption
         selectiveMode
       );
 
+      // Populate observedProperties for the freshly-imported resources so
+      // the very first `cdkd drift` run after import has a real baseline
+      // (matching what `cdkd deploy` does after each create/update). Done
+      // synchronously in parallel before saveState — import is a rare op
+      // and the few extra seconds are amortized into the user's adoption
+      // workflow. Errors are swallowed per-resource so a single
+      // readCurrentState failure does not abort the whole import.
+      await captureObservedForImportedResources(stackState, providerRegistry, logger);
+
       // Forward the etag for optimistic locking when state already exists,
       // and trigger legacy-key migration when the existing state was loaded
       // from the v1 layout. For the create-from-empty case, the absence of
@@ -769,7 +782,7 @@ function buildStackState(
     };
   }
   return {
-    version: 2,
+    version: STATE_SCHEMA_VERSION_CURRENT,
     stackName,
     region,
     resources,
@@ -945,4 +958,55 @@ export function createImportCommand(): Command {
 
 function collectMultiple(value: string, previous: string[] | undefined): string[] {
   return [...(previous ?? []), value];
+}
+
+/**
+ * Populate `observedProperties` for every resource in a freshly-built
+ * import StackState by calling the matching provider's
+ * `readCurrentState`. Mirrors what `cdkd deploy` does after each
+ * create/update so the very first `cdkd drift` run after import has a
+ * real AWS-current baseline (instead of falling back to template
+ * `properties` and silently missing console-side changes).
+ *
+ * Synchronous + parallel — import is rare enough that the few extra
+ * seconds for `Promise.all` over the imported set are amortized into
+ * the user's adoption workflow. Per-resource errors are swallowed
+ * (logged at debug) so a single readCurrentState failure does not abort
+ * the import; the affected resource simply lands without
+ * `observedProperties` and the next deploy will populate it.
+ *
+ * Resources whose provider does not implement `readCurrentState`
+ * (incremental rollout — see `ResourceProvider.readCurrentState`'s
+ * doc-comment) keep `observedProperties: undefined`; the drift comparator
+ * falls back to `properties` for those, matching pre-v3 behavior.
+ */
+async function captureObservedForImportedResources(
+  stackState: StackState,
+  providerRegistry: ProviderRegistry,
+  logger: ReturnType<typeof getLogger>
+): Promise<void> {
+  const entries = Object.entries(stackState.resources);
+  if (entries.length === 0) return;
+
+  await Promise.all(
+    entries.map(async ([logicalId, resource]) => {
+      try {
+        const provider = providerRegistry.getProvider(resource.resourceType);
+        if (!provider.readCurrentState) return;
+        const observed = await provider.readCurrentState(
+          resource.physicalId,
+          logicalId,
+          resource.resourceType,
+          resource.properties ?? {}
+        );
+        if (observed !== undefined) {
+          resource.observedProperties = observed;
+        }
+      } catch (err) {
+        logger.debug(
+          `observedProperties capture for imported ${logicalId} (${resource.resourceType}) failed: ${err instanceof Error ? err.message : String(err)} — drift will fall back to template properties for this resource until the next successful deploy.`
+        );
+      }
+    })
+  );
 }
