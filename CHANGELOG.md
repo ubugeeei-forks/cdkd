@@ -1,3 +1,10 @@
+## [0.50.3](https://github.com/go-to-k/cdkd/compare/v0.50.2...v0.50.3) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** always emit user-controllable top-level keys in AppSync + ApiGateway + ApiGatewayV2 readCurrentState (Phase 2b) ([#154](https://github.com/go-to-k/cdkd/issues/154)) ([8062785](https://github.com/go-to-k/cdkd/commit/80627850fe8301b22973d99516061710148468ed))
+
 ## [0.50.2](https://github.com/go-to-k/cdkd/compare/v0.50.1...v0.50.2) (2026-05-07)
 
 
