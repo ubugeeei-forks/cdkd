@@ -1,3 +1,10 @@
+## [0.50.11](https://github.com/go-to-k/cdkd/compare/v0.50.10...v0.50.11) (2026-05-07)
+
+
+### Bug Fixes
+
+* **drift:** round-trip audit for compute/API providers (PR 4/5) ([#166](https://github.com/go-to-k/cdkd/issues/166)) ([8e43e7e](https://github.com/go-to-k/cdkd/commit/8e43e7ebb6baadc238e4bda3e6320af8a0b8d8a8))
+
 ## [0.50.10](https://github.com/go-to-k/cdkd/compare/v0.50.9...v0.50.10) (2026-05-07)
 
 
