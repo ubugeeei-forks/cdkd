@@ -1,3 +1,10 @@
+## [0.51.2](https://github.com/go-to-k/cdkd/compare/v0.51.1...v0.51.2) (2026-05-08)
+
+
+### Bug Fixes
+
+* **drift:** close 5 tractable Cat C drift coverage gaps ([#176](https://github.com/go-to-k/cdkd/issues/176)-[#180](https://github.com/go-to-k/cdkd/issues/180)) ([#184](https://github.com/go-to-k/cdkd/issues/184)) ([685e898](https://github.com/go-to-k/cdkd/commit/685e898d19e2231375f1b9c7cb758801f9ff4938))
+
 ## [0.51.1](https://github.com/go-to-k/cdkd/compare/v0.51.0...v0.51.1) (2026-05-08)
 
 
