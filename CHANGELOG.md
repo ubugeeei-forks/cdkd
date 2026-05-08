@@ -1,3 +1,10 @@
+## [0.51.9](https://github.com/go-to-k/cdkd/compare/v0.51.8...v0.51.9) (2026-05-08)
+
+
+### Bug Fixes
+
+* **drift:** close final reverse-mappable edge cases (Firehose encryption + EC2 Instance DisableApiTermination) ([#191](https://github.com/go-to-k/cdkd/issues/191)) ([c5834ce](https://github.com/go-to-k/cdkd/commit/c5834cee845f93b9886a6df5fd438a5527a128cb))
+
 ## [0.51.8](https://github.com/go-to-k/cdkd/compare/v0.51.7...v0.51.8) (2026-05-08)
 
 
