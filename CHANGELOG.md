@@ -1,3 +1,10 @@
+## [0.51.3](https://github.com/go-to-k/cdkd/compare/v0.51.2...v0.51.3) (2026-05-08)
+
+
+### Bug Fixes
+
+* **drift:** surface Firehose S3/ExtendedS3 destination subset ([#181](https://github.com/go-to-k/cdkd/issues/181) partial close) ([#185](https://github.com/go-to-k/cdkd/issues/185)) ([a8739d3](https://github.com/go-to-k/cdkd/commit/a8739d31659f0a4f52a7a5cf5ea507302ce60530))
+
 ## [0.51.2](https://github.com/go-to-k/cdkd/compare/v0.51.1...v0.51.2) (2026-05-08)
 
 
