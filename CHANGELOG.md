@@ -1,3 +1,10 @@
+## [0.51.4](https://github.com/go-to-k/cdkd/compare/v0.51.3...v0.51.4) (2026-05-08)
+
+
+### Bug Fixes
+
+* **drift:** reverse-map EC2 SecurityGroup ingress/egress rules ([#182](https://github.com/go-to-k/cdkd/issues/182) partial close) ([#186](https://github.com/go-to-k/cdkd/issues/186)) ([09edfdf](https://github.com/go-to-k/cdkd/commit/09edfdfa4794215b08ab8883ef8401149f381693))
+
 ## [0.51.3](https://github.com/go-to-k/cdkd/compare/v0.51.2...v0.51.3) (2026-05-08)
 
 
