@@ -1,3 +1,10 @@
+# [0.52.0](https://github.com/go-to-k/cdkd/compare/v0.51.10...v0.52.0) (2026-05-08)
+
+
+### Features
+
+* **logs:** apply DeletionProtectionEnabled / BearerTokenAuthenticationEnabled / FieldIndexPolicies on create + update ([#194](https://github.com/go-to-k/cdkd/issues/194)) ([52e7e6d](https://github.com/go-to-k/cdkd/commit/52e7e6dc852417378410c381813bb452bc306197))
+
 ## [0.51.10](https://github.com/go-to-k/cdkd/compare/v0.51.9...v0.51.10) (2026-05-08)
 
 
