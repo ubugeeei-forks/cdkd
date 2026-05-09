@@ -1,3 +1,10 @@
+# [0.65.0](https://github.com/go-to-k/cdkd/compare/v0.64.0...v0.65.0) (2026-05-09)
+
+
+### Features
+
+* **glue:** SDK providers for Job/Crawler/Connection/Trigger with drift coverage ([#214](https://github.com/go-to-k/cdkd/issues/214)) ([f8db936](https://github.com/go-to-k/cdkd/commit/f8db936888ecb6cfc86dc6b4fdd2473de4be5bc8))
+
 # [0.64.0](https://github.com/go-to-k/cdkd/compare/v0.63.0...v0.64.0) (2026-05-09)
 
 
