@@ -1,3 +1,10 @@
+## [0.57.1](https://github.com/go-to-k/cdkd/compare/v0.57.0...v0.57.1) (2026-05-09)
+
+
+### Bug Fixes
+
+* **sns:** normalize DeliveryStatusLogging Protocol case before building AWS attribute names ([#203](https://github.com/go-to-k/cdkd/issues/203)) ([767c3c3](https://github.com/go-to-k/cdkd/commit/767c3c3ac71cfc72a543737fd6ad5e387394f1fd))
+
 # [0.57.0](https://github.com/go-to-k/cdkd/compare/v0.56.0...v0.57.0) (2026-05-09)
 
 
