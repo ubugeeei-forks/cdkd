@@ -1,3 +1,10 @@
+# [0.66.0](https://github.com/go-to-k/cdkd/compare/v0.65.0...v0.66.0) (2026-05-09)
+
+
+### Features
+
+* **hooks:** add provider-docs-gate.sh to block commits missing supported-resources.md / import.md entries ([#220](https://github.com/go-to-k/cdkd/issues/220)) ([512eebf](https://github.com/go-to-k/cdkd/commit/512eebfb8ff26550f556f84e1652baad16e60120))
+
 # [0.65.0](https://github.com/go-to-k/cdkd/compare/v0.64.0...v0.65.0) (2026-05-09)
 
 
