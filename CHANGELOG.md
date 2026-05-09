@@ -1,3 +1,10 @@
+# [0.56.0](https://github.com/go-to-k/cdkd/compare/v0.55.0...v0.56.0) (2026-05-09)
+
+
+### Features
+
+* **apigatewayv2:** in-place update for all 5 supported AWS::ApiGatewayV2::* types ([#198](https://github.com/go-to-k/cdkd/issues/198)) ([a1579f0](https://github.com/go-to-k/cdkd/commit/a1579f0c3a5fd2b7015c306a5e92e0666b272fdf))
+
 # [0.55.0](https://github.com/go-to-k/cdkd/compare/v0.54.0...v0.55.0) (2026-05-09)
 
 
