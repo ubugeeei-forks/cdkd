@@ -1,3 +1,10 @@
+## [0.75.2](https://github.com/go-to-k/cdkd/compare/v0.75.1...v0.75.2) (2026-05-10)
+
+
+### Bug Fixes
+
+* **local:** authorizer IAM glob + Bearer regex + audience field polish (closes 3 items in [#241](https://github.com/go-to-k/cdkd/issues/241)) ([#246](https://github.com/go-to-k/cdkd/issues/246)) ([afb2466](https://github.com/go-to-k/cdkd/commit/afb2466d5a5d22f80fd388ef47386a7d3ef1648b))
+
 ## [0.75.1](https://github.com/go-to-k/cdkd/compare/v0.75.0...v0.75.1) (2026-05-10)
 
 
