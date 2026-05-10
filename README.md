@@ -24,6 +24,7 @@
 - **Diff calculation**: Self-implemented resource/property-level diff between desired template and current state
 - **S3-based state management**: No DynamoDB required, uses S3 conditional writes for locking
 - **DAG-based parallelization**: Analyze `Ref`/`Fn::GetAtt` dependencies and execute in parallel
+- **Rollback on failure**: When a deploy errors mid-stack, cdkd rolls back the resources it just created so the stack state stays consistent (CloudFormation parity — but cdkd does this without round-tripping through CFn). Pass `cdkd deploy --no-rollback` to skip rollback and keep the partial state for Terraform-style inspection / repair. See [Rollback behavior](#rollback-behavior).
 - **`--no-wait` for async resources**: Skip the multi-minute wait on CloudFront / RDS / ElastiCache / NAT Gateway and return as soon as the create call returns (CloudFormation always blocks)
 - **VPC route DependsOn relaxation (on by default)**: Drop CDK-injected defensive `DependsOn` edges from VPC Lambdas onto private-subnet routes so `CloudFront::Distribution` and `Lambda::Url` start their ~3-min propagation in parallel with NAT Gateway stabilization (~50% faster on VPC + Lambda + CloudFront stacks). Pass `--no-aggressive-vpc-parallel` to opt out.
 
@@ -161,7 +162,7 @@ the full per-type table.
 | Asset publishing (ECR) | ✅ | Self-implemented Docker image publishing |
 | Custom Resources (SNS-backed) | ✅ | SNS Topic ServiceToken + S3 response |
 | Custom Resources (CDK Provider) | ✅ | isCompleteHandler/onEventHandler async pattern detection |
-| Rollback | ✅ | --no-rollback flag to skip |
+| Rollback | ✅ | Auto-rollback on mid-deploy failure (deletes already-completed resources to keep state consistent); `--no-rollback` skips for Terraform-style failed-state inspection. See [Rollback behavior](#rollback-behavior) below. |
 | DeletionPolicy: Retain | ✅ | Skip deletion for retained resources |
 | UpdateReplacePolicy: Retain | ✅ | Keep old resource on replacement |
 | Implicit delete dependencies | ✅ | VPC/IGW/EventBus/Subnet/RouteTable ordering |
@@ -180,32 +181,14 @@ the full per-type table.
 
 ## Installation
 
-### From npm
-
 ```bash
 npm i -g @go-to-k/cdkd          # latest release
 npm i -g @go-to-k/cdkd@0.0.2    # pin to a specific version
 ```
 
-The installed binary is `cdkd` — run it the same way in either install path.
+The installed binary is `cdkd`.
 
 > cdkd is an experimental / educational project and is not intended for production use — see the warning at the top of this README. Pin to a specific version if you need reproducible installs.
-
-### From source
-
-```bash
-git clone https://github.com/go-to-k/cdkd.git
-cd cdkd
-pnpm install
-pnpm run build
-npm link
-```
-
-If `cdkd` is not found after `npm link`, set an alias in the current shell:
-
-```bash
-alias cdkd="node $(pwd)/dist/cli.js"
-```
 
 ## Quick Start
 
@@ -405,6 +388,27 @@ cdkd state destroy --all -y           # every stack in the bucket
 cdkd state destroy MyStack --region us-east-1
 ```
 
+## Rollback behavior
+
+When a deploy fails mid-stack (e.g. a resource hits a validation error
+or AWS rejects the request), cdkd by default **rolls back the
+already-completed resources in the same deploy** so the stack state
+stays consistent — every resource cdkd just created in this run is
+deleted in reverse dependency order, the state record is updated to
+match, and the CLI exits non-zero. Resources that existed before this
+deploy are NOT touched.
+
+Pass `cdkd deploy --no-rollback` to skip the rollback (Terraform-style:
+the partial state is preserved so you can `cdkd state show <stack>`,
+inspect what landed, fix the underlying issue, and re-run `cdkd deploy`
+to continue from the half-deployed state). Recommended only when you
+plan to manually inspect / repair; the default is safer for CI.
+
+Mid-deploy state is also saved per-resource as work completes, so even
+if cdkd itself crashes between the failure and the rollback, the state
+file accurately reflects what's on AWS and a follow-up `cdkd destroy`
+won't orphan anything.
+
 ## `--no-wait`: skip async-resource waits
 
 CloudFront / RDS / ElastiCache / NAT Gateway typically take 1–15
@@ -493,28 +497,16 @@ Two `orphan` variants at different granularities:
 Both `cdkd destroy` (synth-driven) and `cdkd state destroy`
 (state-driven, no synth) delete AWS resources + state.
 
-## Stack termination protection
+## `--remove-protection`: one-shot bypass for protected resources
 
-CDK's `new Stack(app, 'X', { terminationProtection: true })` is
-honored by `cdkd destroy` and `cdkd destroy --all`. A protected
-stack is refused before the lock is acquired and before any
-per-resource delete runs; in `--all` runs sibling unprotected
-stacks still destroy and the protected ones contribute to the
-partial-failure exit code 2.
-
-Bypass workflow:
-
-1. Edit the CDK code to set `terminationProtection: false`.
-2. Redeploy: `cdkd deploy MyStack`.
-3. Retry: `cdkd destroy MyStack`.
-
-`cdkd state destroy` (state-only, no synth) does **not** honor
-`terminationProtection` — the flag is a CDK property surfaced via
-synth and is not stored in cdkd's state.json. Use `cdkd destroy`
-when synth is available, or accept that `state destroy` is the
+CDK's `new Stack(app, 'X', { terminationProtection: true })` is honored
+by `cdkd destroy` (refused before any per-resource delete). The
+state-only path `cdkd state destroy` does NOT honor it — that's the
 explicit "I know what I'm doing, ignore CDK guards" escape hatch.
 
-### `--remove-protection`: one-shot bypass for protected resources
+For resource-level protection (`DeletionProtection` etc.), the standard
+workflow is edit CDK → redeploy → destroy. `--remove-protection` is the
+one-shot bypass:
 
 `cdkd destroy --remove-protection` and `cdkd state destroy
 --remove-protection` flip every protection flag off in-place
@@ -538,25 +530,14 @@ types:
 | `AWS::Cognito::UserPool` | `DeletionProtection` (`ACTIVE` / `INACTIVE`) |
 | `AWS::AutoScaling::AutoScalingGroup` | `DeletionProtection` (`none` / `prevent-force-deletion` / `prevent-all-deletion`) — flag also sets `ForceDelete: true` so AWS terminates running instances as part of the delete |
 
-The flip-off call is idempotent — providers always issue it when
-the flag is set, regardless of whether the resource currently has
-protection on. This is per-PR-level: a single `--remove-protection`
-covers every protection-bearing type listed above; there is no
-per-type variant.
+A single `--remove-protection` covers every type listed above (no
+per-type variant). The interactive confirm prompt switches to
+`y/N` (requiring an explicit `y` for the destructive bypass);
+`--yes` / `-y` / `-f` skips it.
 
-The interactive confirmation prompt is updated when the flag is
-set: `About to destroy N resources from stack "X", REMOVING
-DELETION PROTECTION on K of them. Continue? (y/N)`. The default
-flips from `Y/n` to `y/N` so the destructive bypass requires an
-explicit `y` / `yes`. `--yes` / `-y` / `-f` skips the prompt.
-
-Other protected resource types (CloudFront Distributions, Lambda
-function reserved concurrency, S3 bucket retention, etc.) are
-out of scope — the flag list is curated to the cases where AWS
-exposes a synchronous "flip protection off" API call.
-
-`cdkd diff` (read-only) and `cdkd deploy` (forward-only) are
-unaffected — only destroy is gated.
+Out of scope: types where AWS doesn't expose a synchronous "flip
+protection off" API call (CloudFront Distributions, Lambda function
+reserved concurrency, S3 bucket retention, etc.).
 
 ## `publish-assets`: synth + build + publish, no deploy
 
