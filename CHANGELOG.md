@@ -1,3 +1,10 @@
+# [0.71.0](https://github.com/go-to-k/cdkd/compare/v0.70.0...v0.71.0) (2026-05-10)
+
+
+### Features
+
+* **cli:** cdkd local start-api (PR 8a of [#224](https://github.com/go-to-k/cdkd/issues/224)) ([#231](https://github.com/go-to-k/cdkd/issues/231)) ([afd5ebd](https://github.com/go-to-k/cdkd/commit/afd5ebde0d5aa999dc3213b3b638a27d89882ef2))
+
 # [0.70.0](https://github.com/go-to-k/cdkd/compare/v0.69.0...v0.70.0) (2026-05-10)
 
 
