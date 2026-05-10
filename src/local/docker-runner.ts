@@ -72,7 +72,14 @@ export interface DockerRunOptions {
   entryPoint?: string[];
   /** `--workdir <dir>` for container Lambdas (PR 5, `ImageConfig.WorkingDirectory`). */
   workingDir?: string;
-  /** Optional `--name` so the orphan-sweep / debugging path can find the container. */
+  /**
+   * Optional `--name` for the container. `cdkd local start-api` sets a
+   * stable `cdkd-local-<logicalId>-<pid>-<rand>` name so the verify.sh
+   * trap can sweep orphans (`docker ps --filter name=cdkd-local-`)
+   * regardless of how the server exited. `cdkd local invoke` leaves it
+   * unset and lets docker auto-assign — short-lived containers don't
+   * benefit from a stable name.
+   */
   name?: string;
 }
 
