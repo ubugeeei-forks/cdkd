@@ -1,3 +1,10 @@
+# [0.75.0](https://github.com/go-to-k/cdkd/compare/v0.74.0...v0.75.0) (2026-05-10)
+
+
+### Features
+
+* **cli:** cdkd local start-api — hot reload + CORS preflight + stage variables (closes [#235](https://github.com/go-to-k/cdkd/issues/235)) ([#238](https://github.com/go-to-k/cdkd/issues/238)) ([3bb6b7b](https://github.com/go-to-k/cdkd/commit/3bb6b7b86c9c38eaa90c964ce42cec0744ec80f9))
+
 # [0.74.0](https://github.com/go-to-k/cdkd/compare/v0.73.0...v0.74.0) (2026-05-10)
 
 
