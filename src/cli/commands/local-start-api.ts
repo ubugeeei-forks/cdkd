@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { Command, Option } from 'commander';
@@ -26,6 +26,7 @@ import { discoverRoutes, type DiscoveredRoute } from '../../local/route-discover
 import { createContainerPool, type ContainerSpec } from '../../local/container-pool.js';
 import { startApiServer } from '../../local/http-server.js';
 import { resolveEnvVars, type EnvOverrideFile } from '../../local/env-resolver.js';
+import { resolveLambdaLayers, type ResolvedLambdaLayer } from '../../local/lambda-resolver.js';
 import { matchStacks } from '../stack-matcher.js';
 import {
   attachAuthorizers,
@@ -149,6 +150,21 @@ async function localStartApiCommand(options: LocalStartApiOptions): Promise<void
   // command) would otherwise leak one tmpdir per inline-`Code.ZipFile`
   // Lambda per server invocation.
   const inlineTmpDirs = new Set<string>();
+  // PR 6 (#232): track every tmpdir created by layer merging too —
+  // `materializeLambdaLayers(...)` produces one merged tmpdir per
+  // Lambda whose `Properties.Layers` contains 2+ entries (single-
+  // layer Lambdas bind-mount the layer's asset dir directly).
+  // Cleaned up alongside `inlineTmpDirs` in `shutdown(...)`.
+  //
+  // FORWARD-LOOK (PR 8c — hot reload): when the watcher re-runs
+  // `materializeLambdaLayers(...)` after a layer asset changes, it
+  // MUST `rmSync` the corresponding old entry in this set BEFORE the
+  // re-merge produces a new tmpdir, then drop the old entry. Without
+  // that, every reload leaks one tmpdir until the server exits.
+  // The watcher implementation is intentionally NOT touched here —
+  // PR 8c owns the watch path; this comment exists so the next
+  // reviewer sees the contract before extending the watcher.
+  const layerTmpDirs = new Set<string>();
   for (let i = 0; i < lambdaIds.length; i++) {
     const logicalId = lambdaIds[i]!;
     const spec = await buildContainerSpec({
@@ -160,6 +176,7 @@ async function localStartApiCommand(options: LocalStartApiOptions): Promise<void
       ...(debugPortBase !== undefined && { debugPort: debugPortBase + i }),
       stsRegion: options.region ?? process.env['AWS_REGION'] ?? process.env['AWS_DEFAULT_REGION'],
       inlineTmpDirs,
+      layerTmpDirs,
     });
     specs.set(logicalId, spec);
   }
@@ -285,6 +302,15 @@ async function localStartApiCommand(options: LocalStartApiOptions): Promise<void
       } catch (err) {
         logger.warn(
           `Failed to remove inline-code tmpdir ${dir}: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
+    }
+    for (const dir of layerTmpDirs) {
+      try {
+        rmSync(dir, { recursive: true, force: true });
+      } catch (err) {
+        logger.warn(
+          `Failed to remove merged-layers tmpdir ${dir}: ${err instanceof Error ? err.message : String(err)}`
         );
       }
     }
@@ -459,6 +485,14 @@ async function buildContainerSpec(args: {
    * within one server boot.
    */
   inlineTmpDirs: Set<string>;
+  /**
+   * The caller's set of merged-layers tmpdirs (PR 6 of #224, issue
+   * #232). Every multi-layer Lambda's `materializeLambdaLayers(...)`
+   * call records its merged tmpdir here so `shutdown(...)` can remove
+   * each one. Single-layer Lambdas bind-mount the layer's asset dir
+   * directly and never write into this set.
+   */
+  layerTmpDirs: Set<string>;
 }): Promise<ContainerSpec> {
   const {
     logicalId,
@@ -469,6 +503,7 @@ async function buildContainerSpec(args: {
     debugPort,
     stsRegion,
     inlineTmpDirs,
+    layerTmpDirs,
   } = args;
   const lambda = resolveLambdaByLogicalId(logicalId, stacks);
 
@@ -483,6 +518,13 @@ async function buildContainerSpec(args: {
       resolveRuntimeFileExtension(lambda.runtime),
       inlineTmpDirs
     );
+
+  // PR 6 (#232): pre-resolve the `/opt` bind-mount source. Single-
+  // layer functions reuse the layer's asset dir directly; multi-
+  // layer functions get a freshly-merged tmpdir (later layers
+  // overwrite earlier files via `cpSync({force:true})` — the
+  // load-bearing half of AWS's "last layer wins" semantic).
+  const optDir = materializeLambdaLayers(lambda.layers, layerTmpDirs);
 
   // Env vars: literal template values + --env-vars overlay. Intrinsic-
   // valued template entries are warned + dropped (matches PR 1 / 2
@@ -527,9 +569,44 @@ async function buildContainerSpec(args: {
     codeDir,
     env: dockerEnv,
     containerHost,
+    ...(optDir !== undefined && { optDir }),
     ...(debugPort !== undefined && { debugPort }),
   };
   return spec;
+}
+
+/**
+ * Build the `/opt` bind-mount source for a Lambda's layers. Mirrors
+ * the helper in `src/cli/commands/local-invoke.ts` but stores the
+ * merged tmpdir into the shared `layerTmpDirs` set so the server's
+ * graceful shutdown path can clean it up. Returns `undefined` when
+ * the function declares no layers.
+ *
+ * Three branches:
+ *   - 0 layers → `undefined` (no `/opt` mount).
+ *   - 1 layer → bind-mount the layer's asset dir directly (no copy).
+ *   - 2+ layers → copy each into a fresh tmpdir IN ORDER (later
+ *     layers overwrite earlier files via `cpSync({force: true})`),
+ *     bind-mount the tmpdir at `/opt`. Records the tmpdir in
+ *     `layerTmpDirs` so `shutdown(...)` removes it.
+ *
+ * AWS Lambda's actual runtime extracts every layer ZIP into `/opt`
+ * in template order — the merge mirrors that. Docker rejects multiple
+ * `-v ...:/opt:ro` entries at the same target, so cdkd can't rely on
+ * overlay layering and must produce a single merged dir on the host.
+ */
+function materializeLambdaLayers(
+  layers: { logicalId: string; assetPath: string }[],
+  layerTmpDirs: Set<string>
+): string | undefined {
+  if (layers.length === 0) return undefined;
+  if (layers.length === 1) return layers[0]!.assetPath;
+  const dir = mkdtempSync(path.join(tmpdir(), 'cdkd-local-start-api-layers-'));
+  for (const layer of layers) {
+    cpSync(layer.assetPath, dir, { recursive: true, force: true });
+  }
+  layerTmpDirs.add(dir);
+  return dir;
 }
 
 /**
@@ -557,6 +634,13 @@ interface ResolvedStartApiLambda {
   memoryMb: number;
   timeoutSec: number;
   codePath: string | null;
+  /**
+   * Same-stack `Properties.Layers` references resolved to local asset
+   * directories (PR 6 of #224, issue #232). Empty `[]` when the function
+   * declares no layers. Order is preserved from the template (last layer
+   * wins on file collision per AWS).
+   */
+  layers: ResolvedLambdaLayer[];
   inlineCode?: string;
 }
 
@@ -592,6 +676,12 @@ function resolveLambdaByLogicalId(logicalId: string, stacks: StackInfo[]): Resol
     if (!inlineCode) {
       codePath = resolveAssetCodePath(stack, logicalId, resource);
     }
+    // PR 6 (#232): same-stack `Properties.Layers` references resolve to
+    // local asset directories that bind-mount at `/opt`; start-api
+    // routes through the same lambda-resolver helper as `cdkd local
+    // invoke` so the warm container pool gets layer support out of
+    // the box.
+    const layers = resolveLambdaLayers(stack, logicalId, props);
     return {
       kind: 'zip',
       stack,
@@ -602,6 +692,7 @@ function resolveLambdaByLogicalId(logicalId: string, stacks: StackInfo[]): Resol
       memoryMb,
       timeoutSec,
       codePath,
+      layers,
       ...(inlineCode !== undefined && { inlineCode }),
     };
   }
