@@ -1,3 +1,10 @@
+# [0.87.0](https://github.com/go-to-k/cdkd/compare/v0.86.0...v0.87.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd export — 2-phase IMPORT+UPDATE for Custom Resources (PR3) ([#282](https://github.com/go-to-k/cdkd/issues/282)) ([e090860](https://github.com/go-to-k/cdkd/commit/e09086061ccde459e737b4d718a00759baca4413))
+
 # [0.86.0](https://github.com/go-to-k/cdkd/compare/v0.85.0...v0.86.0) (2026-05-11)
 
 
