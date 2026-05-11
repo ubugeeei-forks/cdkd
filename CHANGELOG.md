@@ -1,3 +1,10 @@
+# [0.86.0](https://github.com/go-to-k/cdkd/compare/v0.85.0...v0.86.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd export — composite primary identifier support (PR2) ([#279](https://github.com/go-to-k/cdkd/issues/279)) ([fc38016](https://github.com/go-to-k/cdkd/commit/fc380162434a424bf0ed9c7e276ccd8cf5f86ae8))
+
 # [0.85.0](https://github.com/go-to-k/cdkd/compare/v0.84.0...v0.85.0) (2026-05-11)
 
 
