@@ -1,3 +1,10 @@
+# [0.83.0](https://github.com/go-to-k/cdkd/compare/v0.82.1...v0.83.0) (2026-05-11)
+
+
+### Features
+
+* **local-run-task:** TaskRoleArn intrinsics + Fn::Sub resolution + orchestrator tests ([#267](https://github.com/go-to-k/cdkd/issues/267)) ([6e08f53](https://github.com/go-to-k/cdkd/commit/6e08f53e8b77e6148895447bce16f6b21a1cfe42))
+
 ## [0.82.1](https://github.com/go-to-k/cdkd/compare/v0.82.0...v0.82.1) (2026-05-11)
 
 
