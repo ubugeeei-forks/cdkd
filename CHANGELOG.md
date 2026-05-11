@@ -1,3 +1,10 @@
+# [0.81.0](https://github.com/go-to-k/cdkd/compare/v0.80.0...v0.81.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd local start-api one HTTP server per API + fixes (closes [#260](https://github.com/go-to-k/cdkd/issues/260)) ([#260](https://github.com/go-to-k/cdkd/issues/260)) ([2874459](https://github.com/go-to-k/cdkd/commit/2874459e073c0507b603996e5b7238a29b1fd263))
+
 # [0.80.0](https://github.com/go-to-k/cdkd/compare/v0.79.0...v0.80.0) (2026-05-11)
 
 
