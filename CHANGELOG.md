@@ -1,3 +1,10 @@
+## [0.91.1](https://github.com/go-to-k/cdkd/compare/v0.91.0...v0.91.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* **analyzer:** explicit Fn::Join / Fn::Select / Fn::Split descent in extractRefsFromValue (Gap 7 of [#286](https://github.com/go-to-k/cdkd/issues/286)) ([#292](https://github.com/go-to-k/cdkd/issues/292)) ([a8fd55f](https://github.com/go-to-k/cdkd/commit/a8fd55f8951ec31c31b483fdca8ed44be53e88e2))
+
 # [0.91.0](https://github.com/go-to-k/cdkd/compare/v0.90.0...v0.91.0) (2026-05-11)
 
 
