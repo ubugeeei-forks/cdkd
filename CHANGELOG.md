@@ -1,3 +1,15 @@
+# [0.91.0](https://github.com/go-to-k/cdkd/compare/v0.90.0...v0.91.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **local:** close PR [#267](https://github.com/go-to-k/cdkd/issues/267) minor latent items — topoSort / state-loader globalClients / test wording ([#269](https://github.com/go-to-k/cdkd/issues/269)) ([#289](https://github.com/go-to-k/cdkd/issues/289)) ([4f4c600](https://github.com/go-to-k/cdkd/commit/4f4c60081d9e7d4b64b2a1f8d10f1864946d647c))
+
+
+### Features
+
+* **hooks:** pr-review markgate gate enforces reviewer dispatch on size-flagged PRs ([#270](https://github.com/go-to-k/cdkd/issues/270)) ([#290](https://github.com/go-to-k/cdkd/issues/290)) ([58810c7](https://github.com/go-to-k/cdkd/commit/58810c7406e89f87da168e5b0d7bc44995d71770))
+
 # [0.90.0](https://github.com/go-to-k/cdkd/compare/v0.89.0...v0.90.0) (2026-05-11)
 
 
