@@ -1,3 +1,10 @@
+# [0.89.0](https://github.com/go-to-k/cdkd/compare/v0.88.0...v0.89.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd export — cross-stack scan + drift baseline pre-flight (PR5) ([#284](https://github.com/go-to-k/cdkd/issues/284)) ([1442ab1](https://github.com/go-to-k/cdkd/commit/1442ab1e778e667ba3af1a1c2518e9f36a8dc285))
+
 # [0.88.0](https://github.com/go-to-k/cdkd/compare/v0.87.0...v0.88.0) (2026-05-11)
 
 
