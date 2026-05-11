@@ -1,3 +1,10 @@
+# [0.78.0](https://github.com/go-to-k/cdkd/compare/v0.77.0...v0.78.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd local invoke / start-api Java runtime support ([#256](https://github.com/go-to-k/cdkd/issues/256)) ([29d560c](https://github.com/go-to-k/cdkd/commit/29d560c2f80d3fd23815af6a6f22e5c3f3271469))
+
 # [0.77.0](https://github.com/go-to-k/cdkd/compare/v0.76.0...v0.77.0) (2026-05-11)
 
 
