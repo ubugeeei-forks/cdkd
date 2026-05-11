@@ -1,3 +1,10 @@
+## [0.82.1](https://github.com/go-to-k/cdkd/compare/v0.82.0...v0.82.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* **cli:** single-flight cleanup for cdkd local invoke + cdkd local start-api ([#266](https://github.com/go-to-k/cdkd/issues/266)) ([5a429e7](https://github.com/go-to-k/cdkd/commit/5a429e7613a621f8205a3ed0ad19d7afd905fe7e))
+
 # [0.82.0](https://github.com/go-to-k/cdkd/compare/v0.81.0...v0.82.0) (2026-05-11)
 
 
