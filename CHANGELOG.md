@@ -1,3 +1,15 @@
+# [0.90.0](https://github.com/go-to-k/cdkd/compare/v0.89.0...v0.90.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **hooks:** branch-gate doesn't over-trigger on commit/push as literal word ([#281](https://github.com/go-to-k/cdkd/issues/281)) ([#287](https://github.com/go-to-k/cdkd/issues/287)) ([c18d717](https://github.com/go-to-k/cdkd/commit/c18d7172ba354e529ec8570b69c56f434041baa5))
+
+
+### Features
+
+* **hooks:** post-merge-orphan-push-gate blocks pushes to merged-PR's deleted branch ([#277](https://github.com/go-to-k/cdkd/issues/277)) ([#288](https://github.com/go-to-k/cdkd/issues/288)) ([0f8c2f6](https://github.com/go-to-k/cdkd/commit/0f8c2f62e32f3b73cf19a703672fd13c3236a2c6))
+
 # [0.89.0](https://github.com/go-to-k/cdkd/compare/v0.88.0...v0.89.0) (2026-05-11)
 
 
