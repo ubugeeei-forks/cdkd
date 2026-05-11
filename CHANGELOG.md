@@ -1,3 +1,10 @@
+# [0.82.0](https://github.com/go-to-k/cdkd/compare/v0.81.0...v0.82.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd local run-task — Phase 1 of ECS local execution ([#262](https://github.com/go-to-k/cdkd/issues/262)) ([#263](https://github.com/go-to-k/cdkd/issues/263)) ([8b83991](https://github.com/go-to-k/cdkd/commit/8b839912de1f4724bbc40554565d5347e9e5cbef))
+
 # [0.81.0](https://github.com/go-to-k/cdkd/compare/v0.80.0...v0.81.0) (2026-05-11)
 
 
