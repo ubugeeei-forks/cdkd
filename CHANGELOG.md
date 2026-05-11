@@ -1,3 +1,10 @@
+# [0.84.0](https://github.com/go-to-k/cdkd/compare/v0.83.1...v0.84.0) (2026-05-11)
+
+
+### Features
+
+* **cli:** cdkd export — hand cdkd-managed stack over to CloudFormation (MVP) ([#272](https://github.com/go-to-k/cdkd/issues/272)) ([ef29e46](https://github.com/go-to-k/cdkd/commit/ef29e469ac2146042d3684cc3867ae6d4b9de51f))
+
 ## [0.83.1](https://github.com/go-to-k/cdkd/compare/v0.83.0...v0.83.1) (2026-05-11)
 
 
