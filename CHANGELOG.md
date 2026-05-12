@@ -1,3 +1,10 @@
+## [0.94.2](https://github.com/go-to-k/cdkd/compare/v0.94.1...v0.94.2) (2026-05-12)
+
+
+### Bug Fixes
+
+* **export:** auto pre-delete + phase-2 CREATE for IMPORT-unsupported types (closes [#307](https://github.com/go-to-k/cdkd/issues/307)) ([#309](https://github.com/go-to-k/cdkd/issues/309)) ([25770f1](https://github.com/go-to-k/cdkd/commit/25770f17cc722bdc90e968477a9391a8ec2a0554))
+
 ## [0.94.1](https://github.com/go-to-k/cdkd/compare/v0.94.0...v0.94.1) (2026-05-12)
 
 
