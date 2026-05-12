@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vite-plus';
+import { defineConfig, type Plugin, type ViteBuilder } from 'vite-plus';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,7 +11,54 @@ const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8'))
 };
 const sourceOnlyIgnorePatterns = ['**/*', '!src', '!src/**'];
 
+const getVpCommand = (): string => {
+  const localCommand = resolve(
+    __dirname,
+    'node_modules',
+    '.bin',
+    process.platform === 'win32' ? 'vp.cmd' : 'vp'
+  );
+
+  return existsSync(localCommand) ? localCommand : 'vp';
+};
+
+const isWatchBuild = (): boolean => process.argv.includes('--watch') || process.argv.includes('-w');
+
+const runVpPack = (): void => {
+  const result = spawnSync(getVpCommand(), ['pack', ...(isWatchBuild() ? ['--watch'] : [])], {
+    cwd: __dirname,
+    env: process.env,
+    shell: process.platform === 'win32',
+    stdio: 'inherit',
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.signal) {
+    throw new Error(`vp pack was terminated by signal ${result.signal}`);
+  }
+
+  if (result.status !== 0) {
+    throw new Error(`vp pack exited with code ${result.status ?? 1}`);
+  }
+};
+
+const cdkdBuildPlugin: Plugin = {
+  name: 'cdkd:vp-build',
+  async buildApp(builder: ViteBuilder) {
+    runVpPack();
+
+    for (const environment of Object.values(builder.environments)) {
+      environment.isBuilt = true;
+    }
+  },
+};
+
 export default defineConfig({
+  plugins: [cdkdBuildPlugin],
+
   staged: {
     "*": "vp check --fix"
   },
@@ -114,7 +162,7 @@ export default defineConfig({
     },
     tasks: {
       build: {
-        command: 'vp pack',
+        command: 'vp build',
         cache: false,
       },
       dev: {

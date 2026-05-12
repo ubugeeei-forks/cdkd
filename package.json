@@ -116,10 +116,5 @@
     "constructs": {
       "optional": false
     }
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }
