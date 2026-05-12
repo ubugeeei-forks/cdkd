@@ -6,20 +6,18 @@ vi.mock('node:fs', () => ({
   readFileSync: vi.fn(),
 }));
 
-// Mock logger to avoid console output in tests
+// Mock logger to avoid console output in tests. Singleton shape so
+// tests can assert on `warn()` etc. across invocations.
+const loggerMock = {
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
+};
+loggerMock.child.mockImplementation(() => loggerMock);
 vi.mock('../../../src/utils/logger.js', () => ({
-  getLogger: () => ({
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    child: () => ({
-      debug: vi.fn(),
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    }),
-  }),
+  getLogger: () => loggerMock,
 }));
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -29,6 +27,7 @@ import {
   resolveApp,
   resolveCaptureObservedState,
   resolveSkipPrefix,
+  warnDeprecatedNoPrefixCliFlag,
   resolveStateBucket,
   resolveStateBucketWithSource,
   getDefaultStateBucketName,
@@ -626,56 +625,148 @@ describe('config-loader', () => {
 
   describe('resolveSkipPrefix', () => {
     beforeEach(() => {
+      delete process.env['CDKD_PREFIX_USER_SUPPLIED_NAMES'];
       delete process.env['CDKD_NO_PREFIX_USER_SUPPLIED_NAMES'];
+      loggerMock.warn.mockClear();
     });
 
-    it('returns true when CLI explicitly opts in via --no-prefix-user-supplied-names', () => {
-      // Commander emits `prefixUserSuppliedNames: false` on the flag.
+    // ---- New default since v0.94.0: skip prefix unless opted back in. ----
+
+    it('returns true (skip prefix) when nothing is set — new v0.94.0 default', () => {
       vi.mocked(existsSync).mockReturnValue(false);
-      expect(resolveSkipPrefix(false)).toBe(true);
+      expect(resolveSkipPrefix({})).toBe(true);
+      // Empty Commander shape (no Option keys defined) behaves like default.
+      expect(resolveSkipPrefix()).toBe(true);
     });
 
-    it('returns true when env var CDKD_NO_PREFIX_USER_SUPPLIED_NAMES=true', () => {
+    // ---- New --prefix-user-supplied-names opt-in to legacy prefixing. ----
+
+    it('returns false when CLI passes --prefix-user-supplied-names (opt back in to legacy prefixing)', () => {
+      vi.mocked(existsSync).mockReturnValue(false);
+      expect(resolveSkipPrefix({ prefixUserSuppliedNames: true })).toBe(false);
+    });
+
+    it('returns false when env var CDKD_PREFIX_USER_SUPPLIED_NAMES=true', () => {
+      vi.mocked(existsSync).mockReturnValue(false);
+      process.env['CDKD_PREFIX_USER_SUPPLIED_NAMES'] = 'true';
+      expect(resolveSkipPrefix({})).toBe(false);
+    });
+
+    it('returns false when cdk.json sets prefixUserSuppliedNames=true and CLI/env unset', () => {
+      vi.mocked(existsSync).mockReturnValue(true);
+      vi.mocked(readFileSync).mockReturnValue(
+        JSON.stringify({ context: { cdkd: { prefixUserSuppliedNames: true } } })
+      );
+      expect(resolveSkipPrefix({})).toBe(false);
+    });
+
+    it('CLI flag --prefix-user-supplied-names wins over cdk.json prefixUserSuppliedNames=false', () => {
+      vi.mocked(existsSync).mockReturnValue(true);
+      vi.mocked(readFileSync).mockReturnValue(
+        JSON.stringify({ context: { cdkd: { prefixUserSuppliedNames: false } } })
+      );
+      expect(resolveSkipPrefix({ prefixUserSuppliedNames: true })).toBe(false);
+    });
+
+    it('ignores non-true env var values for CDKD_PREFIX_USER_SUPPLIED_NAMES', () => {
+      vi.mocked(existsSync).mockReturnValue(false);
+      process.env['CDKD_PREFIX_USER_SUPPLIED_NAMES'] = '1';
+      expect(resolveSkipPrefix({})).toBe(true);
+      process.env['CDKD_PREFIX_USER_SUPPLIED_NAMES'] = 'yes';
+      expect(resolveSkipPrefix({})).toBe(true);
+    });
+
+    it('ignores non-boolean cdk.json prefixUserSuppliedNames values', () => {
+      vi.mocked(existsSync).mockReturnValue(true);
+      vi.mocked(readFileSync).mockReturnValue(
+        JSON.stringify({ context: { cdkd: { prefixUserSuppliedNames: 'yes' } } })
+      );
+      expect(resolveSkipPrefix({})).toBe(true);
+    });
+
+    // ---- Deprecated env / cdk.json aliases ----
+    // (CLI-flag deprecation tested separately on warnDeprecatedNoPrefixCliFlag.)
+
+    it('deprecated CDKD_NO_PREFIX_USER_SUPPLIED_NAMES=true matches new default (still returns true) AND emits warning', () => {
       vi.mocked(existsSync).mockReturnValue(false);
       process.env['CDKD_NO_PREFIX_USER_SUPPLIED_NAMES'] = 'true';
-      expect(resolveSkipPrefix(true)).toBe(true);
+      expect(resolveSkipPrefix({})).toBe(true);
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        expect.stringContaining('CDKD_NO_PREFIX_USER_SUPPLIED_NAMES is deprecated')
+      );
     });
 
-    it('returns true when cdk.json sets noPrefixUserSuppliedNames=true and CLI/env unset', () => {
+    it('deprecated cdk.json noPrefixUserSuppliedNames=true matches new default (still returns true) AND emits warning', () => {
       vi.mocked(existsSync).mockReturnValue(true);
       vi.mocked(readFileSync).mockReturnValue(
         JSON.stringify({ context: { cdkd: { noPrefixUserSuppliedNames: true } } })
       );
-      expect(resolveSkipPrefix(true)).toBe(true);
-    });
-
-    it('CLI flag wins over cdk.json (CLI false → skip=true regardless of cdk.json=false)', () => {
-      vi.mocked(existsSync).mockReturnValue(true);
-      vi.mocked(readFileSync).mockReturnValue(
-        JSON.stringify({ context: { cdkd: { noPrefixUserSuppliedNames: false } } })
+      expect(resolveSkipPrefix({})).toBe(true);
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'cdk.json context.cdkd.noPrefixUserSuppliedNames is deprecated'
+        )
       );
-      expect(resolveSkipPrefix(false)).toBe(true);
     });
 
-    it('returns false when nothing is set (preserves pre-PR default behavior)', () => {
+    it('new --prefix-user-supplied-names overrides deprecated CDKD_NO_PREFIX_USER_SUPPLIED_NAMES env', () => {
       vi.mocked(existsSync).mockReturnValue(false);
-      expect(resolveSkipPrefix(true)).toBe(false);
+      process.env['CDKD_NO_PREFIX_USER_SUPPLIED_NAMES'] = 'true';
+      expect(resolveSkipPrefix({ prefixUserSuppliedNames: true })).toBe(false);
     });
 
-    it('ignores non-true env var values (only the literal "true" string opts in)', () => {
+    it('new CDKD_PREFIX_USER_SUPPLIED_NAMES env overrides deprecated CDKD_NO_PREFIX_USER_SUPPLIED_NAMES env', () => {
       vi.mocked(existsSync).mockReturnValue(false);
-      process.env['CDKD_NO_PREFIX_USER_SUPPLIED_NAMES'] = '1';
-      expect(resolveSkipPrefix(true)).toBe(false);
-      process.env['CDKD_NO_PREFIX_USER_SUPPLIED_NAMES'] = 'yes';
-      expect(resolveSkipPrefix(true)).toBe(false);
+      process.env['CDKD_PREFIX_USER_SUPPLIED_NAMES'] = 'true';
+      process.env['CDKD_NO_PREFIX_USER_SUPPLIED_NAMES'] = 'true';
+      expect(resolveSkipPrefix({})).toBe(false);
     });
 
-    it('ignores non-boolean cdk.json values and falls through to false (noPrefixUserSuppliedNames)', () => {
-      vi.mocked(existsSync).mockReturnValue(true);
-      vi.mocked(readFileSync).mockReturnValue(
-        JSON.stringify({ context: { cdkd: { noPrefixUserSuppliedNames: 'yes' } } })
+    it('does NOT emit a warning when only the new keys are set', () => {
+      vi.mocked(existsSync).mockReturnValue(false);
+      process.env['CDKD_PREFIX_USER_SUPPLIED_NAMES'] = 'true';
+      resolveSkipPrefix({});
+      expect(loggerMock.warn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('warnDeprecatedNoPrefixCliFlag', () => {
+    beforeEach(() => {
+      loggerMock.warn.mockClear();
+    });
+
+    it('emits a deprecation warning when --no-prefix-user-supplied-names appears in argv', () => {
+      warnDeprecatedNoPrefixCliFlag([
+        'node',
+        'cdkd',
+        'deploy',
+        '--no-prefix-user-supplied-names',
+      ]);
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        expect.stringContaining('--no-prefix-user-supplied-names is deprecated')
       );
-      expect(resolveSkipPrefix(true)).toBe(false);
+    });
+
+    it('emits a deprecation warning when --no-prefix-user-supplied-names=true appears in argv', () => {
+      warnDeprecatedNoPrefixCliFlag([
+        'node',
+        'cdkd',
+        'deploy',
+        '--no-prefix-user-supplied-names=true',
+      ]);
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        expect.stringContaining('--no-prefix-user-supplied-names is deprecated')
+      );
+    });
+
+    it('does NOT emit when only --prefix-user-supplied-names is passed', () => {
+      warnDeprecatedNoPrefixCliFlag(['node', 'cdkd', 'deploy', '--prefix-user-supplied-names']);
+      expect(loggerMock.warn).not.toHaveBeenCalled();
+    });
+
+    it('does NOT emit when neither flag is passed', () => {
+      warnDeprecatedNoPrefixCliFlag(['node', 'cdkd', 'deploy']);
+      expect(loggerMock.warn).not.toHaveBeenCalled();
     });
   });
 });

@@ -560,16 +560,29 @@ export const deployOptions = [
       'properties (the pre-v3 behavior).'
   ),
   new Option(
-    '--no-prefix-user-supplied-names',
-    'Do NOT prepend the stack name to physical names the user explicitly ' +
-      'supplied in their CDK code (e.g. `new iam.Role(this, "X", { roleName: ' +
-      '"my-role" })` → AWS resource named `my-role` instead of `MyStack-my-role`). ' +
-      'Auto-generated-name resources (where the user did not declare a physical ' +
-      'name) keep the prefix unchanged. Off by default for backward compatibility; ' +
-      'enable via this flag, CDKD_NO_PREFIX_USER_SUPPLIED_NAMES=true, or ' +
-      'cdk.json context.cdkd.noPrefixUserSuppliedNames=true. Applies to ' +
+    '--prefix-user-supplied-names',
+    'Opt in to LEGACY behavior: prepend the stack name to physical names the ' +
+      'user explicitly supplied in their CDK code (e.g. `new iam.Role(this, ' +
+      '"X", { roleName: "my-role" })` → AWS resource named `MyStack-my-role` ' +
+      'instead of `my-role`). Since v0.94.0 the default is to NOT prefix ' +
+      'user-supplied names — this flag restores the pre-v0.94.0 behavior on ' +
+      'Pattern B providers (IAM Role / User / Group / InstanceProfile / ELBv2 ' +
+      'LoadBalancer / TargetGroup). Enable via this flag, ' +
+      'CDKD_PREFIX_USER_SUPPLIED_NAMES=true, or ' +
+      'cdk.json context.cdkd.prefixUserSuppliedNames=true. Applies to ' +
       '`cdkd deploy` only.'
-  ),
+  ).default(false),
+  // Note: the deprecated `--no-prefix-user-supplied-names` flag is NOT
+  // declared as a separate Option. Commander's automatic `--no-X`
+  // negation lets users still pass it without error — it negates the
+  // new `--prefix-user-supplied-names` flag, leaving its default
+  // `false` (= skip prefix) unchanged, which matches the v0.94.0
+  // default. Detection of the literal `--no-prefix-user-supplied-names`
+  // flag for the deprecation warning happens via the pre-parse argv
+  // walk in `warnDeprecatedNoPrefixCliFlag` (src/cli/config-loader.ts) —
+  // declaring both Options together would have collapsed both onto a
+  // single Commander key, making `noPrefixUserSuppliedNames` permanently
+  // `undefined` and silencing the warning.
   noWaitOption,
   aggressiveVpcParallelOption,
   new Option(
