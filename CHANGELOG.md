@@ -1,3 +1,5 @@
+## [0.94.8](https://github.com/go-to-k/cdkd/compare/v0.94.7...v0.94.8) (2026-05-12)
+
 ## [0.94.7](https://github.com/go-to-k/cdkd/compare/v0.94.6...v0.94.7) (2026-05-12)
 
 
