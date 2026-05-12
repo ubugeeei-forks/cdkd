@@ -1,3 +1,10 @@
+## [0.94.1](https://github.com/go-to-k/cdkd/compare/v0.94.0...v0.94.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* **export:** add composite-id splitters for ApiGwV2 Integration/Route + Lambda::Permission ([#308](https://github.com/go-to-k/cdkd/issues/308)) ([9384b7b](https://github.com/go-to-k/cdkd/commit/9384b7be19bb2babc8b1a694055980f99f523c7d))
+
 # [0.94.0](https://github.com/go-to-k/cdkd/compare/v0.93.0...v0.94.0) (2026-05-12)
 
 # [0.93.0](https://github.com/go-to-k/cdkd/compare/v0.92.0...v0.93.0) (2026-05-12)
