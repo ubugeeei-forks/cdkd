@@ -1,3 +1,10 @@
+## [0.94.7](https://github.com/go-to-k/cdkd/compare/v0.94.6...v0.94.7) (2026-05-12)
+
+
+### Bug Fixes
+
+* **export:** preserve phase-1 overlay in phase-2 UPDATE to prevent silent REPLACE ([#316](https://github.com/go-to-k/cdkd/issues/316)) ([40d9675](https://github.com/go-to-k/cdkd/commit/40d9675ff5098cff4e8008434bbc821464504c33))
+
 ## [0.94.6](https://github.com/go-to-k/cdkd/compare/v0.94.5...v0.94.6) (2026-05-12)
 
 
